@@ -21,7 +21,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-func loadJwk(c *cli.Context) (*jwk.Set, error) {
+func loadJwk(c *cli.Context) (jwk.Set, error) {
 	// Get JWK fetch URL
 	jwkUrl := c.String("jwk")
 	if jwkUrl == "" {

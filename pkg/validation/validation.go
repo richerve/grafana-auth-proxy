@@ -10,13 +10,13 @@ import (
 )
 
 type TokenValidator struct {
-	keys       *jwk.Set
+	keys       jwk.Set
 	algorithms []string
 	audience   string
 	issuer     string
 }
 
-func NewTokenValidator(keys *jwk.Set, algorithms []string, audience string, issuer string) *TokenValidator {
+func NewTokenValidator(keys jwk.Set, algorithms []string, audience string, issuer string) *TokenValidator {
 	return &TokenValidator{
 		keys,
 		algorithms,
@@ -78,24 +78,29 @@ func (tv *TokenValidator) getTokenAssociatedPublicKey(token *jwt.Token) (interfa
 		return nil, &Error{errorMessage, ErrorUnsupportedAlg}
 	}
 
-	// Fetch keys associated with the KID
-	kidHeader := token.Header["kid"]
-	if kidHeader == nil {
-		return nil, &Error{"token KID header is nil", ErrorNilKid}
-	}
+	// // Fetch keys associated with the KID
+	// kidHeader := token.Header["kid"]
+	// if kidHeader == nil {
+	// 	return nil, &Error{"token KID header is nil", ErrorNilKid}
+	// }
 
-	keys := tv.keys.LookupKeyID(kidHeader.(string))
-	if len(keys) == 0 {
-		return nil, errors.New("failed to lookup key")
-	}
+	// keys := tv.keys.LookupKeyID(kidHeader.(string))
+	// if len(keys) == 0 {
+	// 	return nil, errors.New("failed to lookup key")
+	// }
 
 	// Use the first key
-	key, err := keys[0].Materialize()
-	if err != nil {
-		return nil, errors.New(fmt.Sprintf("failed to generate public key: %s", err))
+	// key, err := keys[0].Materialize()
+	key, found := tv.keys.Get(0)
+	if !found {
+		return nil, errors.New("Can't found public key in jkws")
 	}
 
-	return key.(*rsa.PublicKey), nil
+	rsaPublicKey := &rsa.PublicKey{}
+	err := key.Raw(rsaPublicKey)
+	return rsaPublicKey, err
+
+	// return key.Raw(&rsa.PublicKey{}), nil
 }
 
 func stringInSlice(a string, list []string) bool {
