@@ -52,9 +52,10 @@ func (tv *TokenValidator) Validate(tokenString string) (*jwt.Token, error) {
 		return token, &Error{"Token is invalid", ErrorToken}
 	}
 
-	tokenAud := token.Claims.(jwt.MapClaims)["aud"].(string)
-	if tokenAud != tv.audience {
-		return token, &Error{"audience does not match", ErrorAudience}
+	if tokenAud, ok := token.Claims.(jwt.MapClaims)["aud"]; ok {
+		if tokenAud.(string) != tv.audience {
+			return token, &Error{"audience does not match", ErrorAudience}
+		}
 	}
 
 	tokenIssuer := token.Claims.(jwt.MapClaims)["iss"].(string)
