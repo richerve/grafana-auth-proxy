@@ -1,4 +1,4 @@
-FROM golang:1.12 as builder
+FROM golang:1.16 as builder
 
 WORKDIR /build
 
@@ -12,7 +12,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -ldflags '-extldflag
 RUN echo "nobody:x:65534:65534:Nobody:/:" > /etc_passwd
 
 FROM scratch
-LABEL maintainer="code@efugulin.com"
+LABEL maintainer="code@ricardoht.com"
 
 WORKDIR /app
 
