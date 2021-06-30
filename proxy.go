@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -35,6 +36,7 @@ func (rh *RequestsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	rawToken, err := rh.TokenExtractor.Extract(r)
 	if err != nil {
 		rh.unauthorizedHandler(w, r)
+		log.Println("Error when extracting token", err)
 		return
 	}
 
@@ -42,6 +44,7 @@ func (rh *RequestsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	token, err := rh.TokenValidator.Validate(rawToken)
 	if err != nil {
 		rh.unauthorizedHandler(w, r)
+		log.Println("Error when validating token", err)
 		return
 	}
 
